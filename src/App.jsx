@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Sparkles, HeartHandshake, Upload, Trash2, RotateCw, RefreshCw, Settings,
+  Sparkles, Upload, Trash2, RotateCw, RefreshCw, Settings,
   Share2, Image as ImageIcon, Terminal, User, Heart, MessageCircle,
   Repeat, Bookmark, Plus, CheckCircle2, AlertCircle, X, HelpCircle,
   ExternalLink
@@ -14,6 +14,8 @@ const PLATFORM_PRESETS = {
   threads: { name: 'Threads', ratio: 1 / 1, width: 1080, height: 1080, label: 'مربع (1:1)' },
   tumblr: { name: 'Tumblr', ratio: 3 / 4, width: 800, height: 1000, label: 'صورة طولية (3:4)' }
 };
+
+const TAHALUF_LOGO_URL = `${import.meta.env.BASE_URL}tahaluf-logo.svg`;
 
 function App() {
   // --- STATE ---
@@ -790,13 +792,11 @@ function App() {
       <header className="app-header">
         <div className="header-container">
           <div className="logo-wrapper">
-            <div className="logo-icon">
-              <HeartHandshake className="text-white" size={24} />
-            </div>
-            <div className="logo-text">
-              <h1>جمعية تحالف <span className="gradient-text">الخيرية</span> 🕊️</h1>
-              <p>منصة النشر الذكي لحملات التبرع والمبادرات الإنسانية</p>
-            </div>
+            <img
+              src={TAHALUF_LOGO_URL}
+              alt="جمعية التحالف للإغاثة والتنمية"
+              className="brand-logo"
+            />
           </div>
 
           <div className="header-actions">
@@ -1472,7 +1472,7 @@ function App() {
 
       {/* FOOTER */}
       <footer style={{ borderTop: '1px solid var(--border-color)', padding: '24px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '40px' }}>
-        <p>© 2026 جمعية تحالف الخيرية. تم التطوير كجزء من مشروع أتمتة النشر الذكي.</p>
+        <p>© 2026 جمعية التحالف للإغاثة والتنمية. تم التطوير كجزء من مشروع أتمتة النشر الذكي.</p>
       </footer>
     </div>
   );

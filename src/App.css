@@ -22,31 +22,14 @@
 .logo-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.logo-icon {
-  background: var(--grad-primary);
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 10px rgba(0, 64, 109, 0.2);
-}
-
-.logo-text h1 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.logo-text p {
-  margin: 0;
-  font-size: 0.65rem;
-  color: var(--text-secondary);
+.brand-logo {
+  display: block;
+  width: min(100%, 460px);
+  height: auto;
 }
 
 .header-actions {
@@ -1016,13 +999,12 @@
   }
   
   .logo-wrapper {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
+    justify-content: center;
+    width: 100%;
   }
-  
-  .logo-text p {
-    display: none;
+
+  .brand-logo {
+    width: min(100%, 340px);
   }
   
   .header-actions {

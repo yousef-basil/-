@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="markTitle">
+  <title id="markTitle">رمز جمعية التحالف للإغاثة والتنمية</title>
+  <defs>
+    <linearGradient id="petalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#77c7d7" />
+      <stop offset="55%" stop-color="#56d6b5" />
+      <stop offset="100%" stop-color="#0f5f95" />
+    </linearGradient>
+    <path id="petal" d="M0 -84C44 -80 78 -46 82 -4C84 38 60 72 0 86C20 42 20 -40 0 -84Z" />
+  </defs>
+  <g transform="translate(128 128)">
+    <g fill="url(#petalGradient)">
+      <use href="#petal" transform="rotate(0)" />
+      <use href="#petal" transform="rotate(60)" />
+      <use href="#petal" transform="rotate(120)" />
+      <use href="#petal" transform="rotate(180)" />
+      <use href="#petal" transform="rotate(240)" />
+      <use href="#petal" transform="rotate(300)" />
+    </g>
+    <circle r="42" fill="#ffffff" />
+    <circle r="35" fill="#f7fffd" opacity="0.72" />
+  </g>
+</svg>
