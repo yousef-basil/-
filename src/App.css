@@ -165,6 +165,8 @@
   border-radius: 6px;
   object-fit: cover;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+  background: #000;
 }
 
 .file-details {
@@ -677,6 +679,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.threads-media-asset {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .threads-actions {

@@ -131,6 +131,27 @@ function App() {
     setLogs(prev => [...prev, { time: timestamp, text, type }]);
   };
 
+  const renderPlatformMedia = (platform, className, alt) => {
+    if (!imageSrc) return null;
+
+    if (mediaType === 'video') {
+      return (
+        <video
+          src={imageSrc}
+          className={className}
+          controls
+          muted
+          playsInline
+          preload="metadata"
+        />
+      );
+    }
+
+    if (!croppedImages[platform]) return null;
+
+    return <img src={croppedImages[platform]} className={className} alt={alt} />;
+  };
+
   // Whenever imageSrc or cropSettings changes, generate cropped images
   useEffect(() => {
     if (imageSrc && mediaType === 'image') {
@@ -197,6 +218,7 @@ function App() {
     if (file) {
       processFile(file);
     }
+    e.target.value = '';
   };
 
   const processFile = (file) => {
@@ -922,7 +944,19 @@ function App() {
 
               {imageFile && (
                 <div className="file-uploaded-info">
-                  <img src={imageSrc} alt="Preview" className="file-preview-thumb" />
+                  {mediaType === 'video' ? (
+                    <video
+                      src={imageSrc}
+                      className="file-preview-thumb"
+                      muted
+                      loop
+                      autoPlay
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <img src={imageSrc} alt="Preview" className="file-preview-thumb" />
+                  )}
                   <div className="file-details">
                     <span className="file-name">{imageFile.name}</span>
                     <span className="file-size">{(imageFile.size / 1024 / 1024).toFixed(2)} MB</span>
@@ -1182,9 +1216,9 @@ function App() {
                               <div className="x-text">
                                 {results.platforms.x.caption}
                               </div>
-                              {croppedImages.x && (
+                              {(mediaType === 'video' || croppedImages.x) && (
                                 <div className="x-media-box">
-                                  <img src={croppedImages.x} className="x-media" alt="Cropped X media" />
+                                  {renderPlatformMedia('x', 'x-media', 'X media preview')}
                                 </div>
                               )}
                               <div className="x-actions">
@@ -1201,9 +1235,7 @@ function App() {
                             <div className="post-mockup mockup-pinterest">
                               <div className="pin-grid">
                                 <div className="pin-image-side">
-                                  {croppedImages.pinterest && (
-                                    <img src={croppedImages.pinterest} className="pin-img" alt="Pinterest pin" />
-                                  )}
+                                  {renderPlatformMedia('pinterest', 'pin-img', 'Pinterest pin')}
                                 </div>
                                 <div className="pin-content-side">
                                   <div className="pin-header">
@@ -1242,9 +1274,9 @@ function App() {
                                   <div className="threads-text">
                                     {results.platforms.threads.caption}
                                   </div>
-                                  {croppedImages.threads && (
+                                  {(mediaType === 'video' || croppedImages.threads) && (
                                     <div className="threads-media">
-                                      <img src={croppedImages.threads} style={{ width: '100%', height: 'auto', objectFit: 'contain' }} alt="Threads media" />
+                                      {renderPlatformMedia('threads', 'threads-media-asset', 'Threads media preview')}
                                     </div>
                                   )}
                                   <div className="threads-actions">
@@ -1274,9 +1306,9 @@ function App() {
                                 </div>
                               </div>
 
-                              {croppedImages.tumblr && (
+                              {(mediaType === 'video' || croppedImages.tumblr) && (
                                 <div className="tumblr-media-container">
-                                  <img src={croppedImages.tumblr} className="tumblr-img" alt="Tumblr post" />
+                                  {renderPlatformMedia('tumblr', 'tumblr-img', 'Tumblr media preview')}
                                 </div>
                               )}
 
