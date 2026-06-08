@@ -15,7 +15,7 @@ const PLATFORM_PRESETS = {
   tumblr: { name: 'Tumblr', ratio: 3 / 4, width: 800, height: 1000, label: 'صورة طولية (3:4)' }
 };
 
-const TAHALUF_LOGO_URL = `${import.meta.env.BASE_URL}tahaluf-logo.svg`;
+const TAHALUF_LOGO_URL = `${import.meta.env.BASE_URL}Full-Color-ArEn-H-1536x306.png`;
 
 function App() {
   // --- STATE ---
