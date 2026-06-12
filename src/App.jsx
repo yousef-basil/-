@@ -17,59 +17,115 @@ const PLATFORM_PRESETS = {
 
 const ORGANIZATION_NAME = 'جمعية التحالف للإغاثة والتنمية';
 const TAHALUF_LOGO_URL = `${import.meta.env.BASE_URL}Full-Color-ArEn-H-1536x306.png`;
+const OPENAI_MODEL = 'gpt-4o-mini';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+
+const detectProviderFromKey = (key = '') => {
+  const trimmed = key.trim();
+  return trimmed.startsWith('sk-') ? 'openai' : 'gemini';
+};
+
+const getProviderMeta = (provider) => {
+  if (provider === 'openai') {
+    return {
+      name: 'OpenAI',
+      statusLabel: 'OpenAI API',
+      inputLabel: 'OpenAI API Key:',
+      placeholder: 'sk-...',
+      helpHref: 'https://platform.openai.com/api-keys',
+      helpText: 'احصل على مفتاح OpenAI'
+    };
+  }
+
+  return {
+    name: 'Gemini',
+    statusLabel: 'Gemini API',
+    inputLabel: 'Gemini API Key:',
+    placeholder: 'AIzaSy...',
+    helpHref: 'https://aistudio.google.com/',
+    helpText: 'احصل على مفتاح Gemini'
+  };
+};
 
 const buildHumanitarianGenerationPrompt = (sourceText, toneLabel) => `
-أنت محرر محتوى إنساني محترف تعمل لصالح ${ORGANIZATION_NAME}. الجمعية تعمل في غزة وتركز على الإغاثة والتنمية ودعم الأسر المتضررة والنازحة عبر برامج مثل الغذاء والمياه والدواء والإيواء والدعم التعليمي والنفسي.
+أنت كاتب محتوى إنساني متمرس تعمل لصالح ${ORGANIZATION_NAME}.
+الجمعية تعمل ميدانيًا في قطاع غزة وتركز على الإغاثة العاجلة والتنمية المستدامة ودعم الأسر المتضررة والنازحة من خلال برامج متعددة تشمل: الغذاء، المياه النظيفة، الدواء والرعاية الصحية، الإيواء والمأوى، الدعم التعليمي للأطفال، والدعم النفسي والاجتماعي.
 
-مهمتك:
-حوّل النص التالي إلى محتوى مناسب للنشر على منصات التواصل الاجتماعي بلغة عربية إنسانية رصينة، واضحة، ومقنعة، مع الحفاظ على الكرامة الإنسانية وبناء الثقة.
+## مهمتك:
+حوّل النص أو الفكرة التالية إلى محتوى جاهز للنشر على منصات التواصل الاجتماعي، بلغة عربية إنسانية رصينة ومقنعة وواضحة، تحترم كرامة المستفيدين وتبني ثقة المتابعين والداعمين.
 
 === النص أو الفكرة الأصلية ===
 "${sourceText}"
 === نهاية النص ===
 
-النبرة المطلوبة:
-"${toneLabel}"
+النبرة المطلوبة: "${toneLabel}"
 
-قواعد إلزامية:
-- اكتب بما يناسب جمعية إنسانية تعمل في غزة، لا بما يناسب صفحة تسويق أو محتوى ترفيهي.
-- احفظ كرامة المستفيدين، وتجنب الاستعراض أو الابتزاز العاطفي أو تصوير الناس كحالات مجردة.
-- تجنب عبارات مثل: "صادم"، "لن تصدق"، "ترند"، "فيروسي"، "فضيحة"، "كارثة لا توصف".
-- لا تخترع أرقامًا أو أسماء أو مواقع أو قصصًا ميدانية أو تفاصيل غير موجودة في النص.
-- إذا كانت المعلومات ناقصة، استخدم صياغة عامة وآمنة دون اختلاق.
-- ركز على الاحتياج الإنساني، أثر التبرع، الشفافية، والأولوية الميدانية.
-- استخدم دعوة محترمة وواضحة مثل: "ساهم"، "ادعم"، "شارك"، "انشر"، "كن عونًا".
-- لا تضف رابط تبرع أو وسيلة تواصل من عندك إذا لم تكن موجودة في النص.
-- اجعل اللغة فصحى سهلة وقريبة من الناس، مع مسحة وجدانية هادئة.
-- تجنب الخطاب السياسي أو التحريضي أو أي ادعاءات غير موثقة.
-- يمكن الإشارة إلى النزوح أو شح الغذاء أو الماء أو الدواء أو التعليم إذا كان ذلك منسجمًا مع النص الأصلي أو مع طبيعة العمل الإنساني في غزة، لكن دون مبالغة أو اختلاق.
+## قواعد إلزامية صارمة:
+1. اكتب بما يليق بجمعية إنسانية تعمل في ظروف استثنائية بغزة — لا بأسلوب صفحات التسويق أو الترفيه.
+2. احفظ كرامة المستفيدين تمامًا: لا تصوّرهم كحالات مجردة، ولا تستخدم لغة استعراضية أو ابتزازًا عاطفيًا رخيصًا.
+3. تجنب تمامًا عبارات مثل: "صادم"، "لن تصدق"، "ترند"، "فيروسي"، "فضيحة"، "كارثة لا توصف"، "عاجل" (إلا إذا كان الموقف فعلًا طارئًا مذكورًا في النص).
+4. لا تخترع أرقامًا أو أسماء أو مواقع أو تفاصيل ميدانية أو قصصًا غير موجودة في النص الأصلي.
+5. إذا كانت المعلومات ناقصة، استخدم صياغة عامة صادقة دون اختلاق أي تفاصيل.
+6. ركّز على: الاحتياج الإنساني الحقيقي، أثر الدعم والتبرع، الشفافية والمصداقية، والأولوية الميدانية.
+7. استخدم دعوات عمل محترمة وإنسانية مثل: "ساهم"، "ادعم"، "شارك"، "انشر"، "كن عونًا"، "لا تتردد في المساهمة".
+8. لا تضف رابط تبرع أو وسيلة تواصل من عندك إلا إذا كانت مذكورة في النص الأصلي.
+9. اللغة: فصحى سلسة وقريبة من الناس، مع مسحة وجدانية هادئة ودافئة.
+10. تجنب كل خطاب سياسي أو تحريضي أو ادعاءات غير موثقة.
+11. يمكنك الإشارة إلى سياق غزة (النزوح، شح الغذاء والماء والدواء، تأثر التعليم) إذا كان ذلك منسجمًا مع النص الأصلي أو طبيعة العمل الإنساني، لكن دون مبالغة أو تهويل.
+12. استخدم الإيموجي باعتدال شديد (1-3 لكل منشور) — اختر إيموجي يعبّر عن التضامن والأمل وليس الترفيه.
+13. الهاشتاقات يجب أن تكون ذات صلة بالعمل الإنساني وغزة، وليست هاشتاقات ترند عشوائية.
 
-إرشادات المنصات:
-- X: منشور مختصر بين 170 و240 حرفًا تقريبًا، مباشر، إنساني، ويحتوي 1-2 هاشتاغ فقط.
-- Pinterest: عنوان وصفي واضح، ووصف هادئ يشرح الفكرة أو المشروع دون لغة دعائية مبالغ بها.
-- Threads: أسلوب حواري إنساني من 2-4 فقرات قصيرة، مع سؤال أو دعوة مشاركة لطيفة إن كان مناسبًا.
-- Tumblr: نص قصصي أو تفسيري أطول، يشرح الحالة أو المشروع بوضوح ويحافظ على كرامة المستفيدين.
+## إرشادات تفصيلية لكل منصة:
 
-أعد النتيجة فقط بصيغة JSON صالحة، وبدون أي نص خارج JSON، وبهذا الشكل تمامًا:
+### X (تويتر):
+- منشور مختصر وواضح بين 170 و240 حرفًا.
+- ابدأ بجملة إنسانية مباشرة تلخص الفكرة أو الحاجة.
+- 1-2 هاشتاغ فقط، ذات صلة حقيقية بالموضوع.
+- ختام بدعوة بسيطة للدعم أو النشر.
+- تجنب أسلوب "الخطاف الصادم" — استخدم بدلاً منه جملة صادقة ومؤثرة.
+
+### Pinterest:
+- عنوان وصفي واضح يشرح المشروع أو الحالة (40-60 حرفًا).
+- وصف هادئ ومهني (200-300 حرف) يشرح الفكرة أو المشروع ويوضح كيف يساهم الدعم في التغيير.
+- لا تستخدم لغة إعلانية مبالغة — ركز على الوصف الإنساني الواقعي.
+- 2-3 هاشتاقات.
+
+### Threads:
+- أسلوب حواري إنساني دافئ من 2-4 فقرات قصيرة (300-450 حرفًا).
+- ابدأ بتقديم الموضوع بلغة قريبة من الناس.
+- في الوسط، اشرح الحاجة أو المشروع بوضوح.
+- اختم بسؤال تأمّلي لطيف أو دعوة للمشاركة إن كان مناسبًا.
+- 2-3 هاشتاقات.
+
+### Tumblr:
+- عنوان قصصي واضح يعبّر عن جوهر الموضوع.
+- نص مفصل (500-900 حرف) بأسلوب سردي أو تفسيري.
+- قسّم النص لفقرات مريحة للقراءة.
+- اشرح السياق والحاجة وأثر الدعم بصدق وكرامة.
+- اختم بخاتمة تدعو للتفكير أو المساهمة بأسلوب راقٍ.
+- 2-4 هاشتاقات.
+
+## شكل الإخراج:
+أعد النتيجة فقط بصيغة JSON صالحة، بدون أي نص خارج JSON وبدون علامات Markdown:
 {
-  "enhancedText": "ملخص إنساني واضح ومهني للنص الأصلي",
+  "enhancedText": "ملخص إنساني واضح ومهني للنص الأصلي يصلح كنص رئيسي",
   "platforms": {
     "x": {
-      "caption": "منشور مناسب لمنصة X"
+      "caption": "منشور إنساني مناسب لمنصة X (170-240 حرف)"
     },
     "pinterest": {
-      "title": "عنوان مناسب لـ Pinterest",
-      "description": "وصف مناسب لـ Pinterest"
+      "title": "عنوان وصفي مناسب لـ Pinterest",
+      "description": "وصف إنساني مناسب لـ Pinterest (200-300 حرف)"
     },
     "threads": {
-      "caption": "منشور مناسب لـ Threads"
+      "caption": "منشور حواري إنساني مناسب لـ Threads (300-450 حرف)"
     },
     "tumblr": {
-      "title": "عنوان مناسب لـ Tumblr",
-      "body": "نص مناسب لـ Tumblr"
+      "title": "عنوان قصصي مناسب لـ Tumblr",
+      "body": "نص مفصل إنساني مناسب لـ Tumblr (500-900 حرف)"
     }
   },
-  "hashtags": ["هاشتاغ1", "هاشتاغ2", "هاشتاغ3"]
+  "hashtags": ["3-5 هاشتاقات ذات صلة بالعمل الإنساني وغزة"]
 }
 `;
 
@@ -85,8 +141,18 @@ function App() {
   const [logs, setLogs] = useState([]);
 
   const [showSettings, setShowSettings] = useState(false);  // Credentials
-  const [geminiApiKey, setGeminiApiKey] = useState(() => {
-    return localStorage.getItem('tahaluf_gemini_key') || '';
+  const [apiKey, setApiKey] = useState(() => {
+    return localStorage.getItem('tahaluf_ai_key') || localStorage.getItem('tahaluf_gemini_key') || '';
+  });
+  const [apiProvider, setApiProvider] = useState(() => {
+    const storedProvider = localStorage.getItem('tahaluf_ai_provider');
+
+    if (storedProvider === 'openai' || storedProvider === 'gemini') {
+      return storedProvider;
+    }
+
+    const legacyKey = localStorage.getItem('tahaluf_ai_key') || localStorage.getItem('tahaluf_gemini_key') || '';
+    return legacyKey ? detectProviderFromKey(legacyKey) : 'openai';
   });
 
   // Cost and Token Tracker States
@@ -153,10 +219,14 @@ function App() {
   const hiddenImageRef = useRef(null);
   const terminalEndRef = useRef(null);
 
-  // Initialize key in localStorage
+  // Initialize API credentials in localStorage
   useEffect(() => {
-    localStorage.setItem('tahaluf_gemini_key', geminiApiKey);
-  }, [geminiApiKey]);
+    localStorage.setItem('tahaluf_ai_key', apiKey);
+  }, [apiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('tahaluf_ai_provider', apiProvider);
+  }, [apiProvider]);
 
   // Sync cost and tokens to localStorage
   useEffect(() => {
@@ -187,6 +257,160 @@ function App() {
   const addLog = (text, type = 'info') => {
     const timestamp = new Date().toLocaleTimeString('ar-EG', { hour12: false });
     setLogs(prev => [...prev, { time: timestamp, text, type }]);
+  };
+
+  const providerMeta = getProviderMeta(apiProvider);
+
+  const handleApiKeyChange = (value) => {
+    setApiKey(value);
+
+    const trimmed = value.trim();
+    if (trimmed.startsWith('sk-')) {
+      setApiProvider('openai');
+    } else if (trimmed.startsWith('AIza')) {
+      setApiProvider('gemini');
+    }
+  };
+
+  const trackOpenAIUsage = (usage) => {
+    if (!usage) return;
+
+    const promptTokens = usage.prompt_tokens || 0;
+    const completionTokens = usage.completion_tokens || 0;
+    const total = usage.total_tokens || (promptTokens + completionTokens);
+    const cost = (promptTokens * 0.15 + completionTokens * 0.60) / 1000000;
+
+    setLastCost(cost);
+    setTotalCost(prev => prev + cost);
+    setTotalTokens(prev => prev + total);
+    addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
+  };
+
+  const trackGeminiUsage = (usageMetadata) => {
+    if (!usageMetadata) return;
+
+    const promptTokens = usageMetadata.promptTokenCount || 0;
+    const completionTokens = usageMetadata.candidatesTokenCount || 0;
+    const total = usageMetadata.totalTokenCount || (promptTokens + completionTokens);
+    const cost = (promptTokens * 0.075 + completionTokens * 0.30) / 1000000;
+
+    setLastCost(cost);
+    setTotalCost(prev => prev + cost);
+    setTotalTokens(prev => prev + total);
+    addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
+  };
+
+  const extractApiErrorMessage = async (response) => {
+    try {
+      const errData = await response.json();
+      return errData.error?.message || errData.message || response.statusText;
+    } catch {
+      return response.statusText;
+    }
+  };
+
+  const normalizeGeneratedObject = (generatedObj, sourceName) => {
+    const hasExpectedShape = generatedObj?.enhancedText
+      && generatedObj?.platforms?.x?.caption
+      && generatedObj?.platforms?.pinterest?.title
+      && generatedObj?.platforms?.pinterest?.description
+      && generatedObj?.platforms?.threads?.caption
+      && generatedObj?.platforms?.tumblr?.title
+      && generatedObj?.platforms?.tumblr?.body;
+
+    if (!hasExpectedShape) {
+      throw new Error(`الاستجابة القادمة من ${sourceName} لا تطابق صيغة JSON المطلوبة.`);
+    }
+
+    return generatedObj;
+  };
+
+  const applyGeneratedResults = (generatedObj) => {
+    setResults({
+      enhancedText: generatedObj.enhancedText,
+      platforms: {
+        x: { caption: generatedObj.platforms.x.caption },
+        pinterest: {
+          title: generatedObj.platforms.pinterest.title,
+          description: generatedObj.platforms.pinterest.description
+        },
+        threads: { caption: generatedObj.platforms.threads.caption },
+        tumblr: {
+          title: generatedObj.platforms.tumblr.title,
+          body: generatedObj.platforms.tumblr.body
+        }
+      },
+      hashtags: generatedObj.hashtags || []
+    });
+  };
+
+  const generateWithProvider = async (promptText) => {
+    if (apiProvider === 'openai') {
+      addLog(`تم اختيار ${providerMeta.name}. جاري الاتصال بخوادم OpenAI...`, 'info');
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify({
+          model: OPENAI_MODEL,
+          messages: [{
+            role: 'user',
+            content: promptText
+          }],
+          response_format: { type: 'json_object' }
+        })
+      });
+
+      if (!response.ok) {
+        const errMessage = await extractApiErrorMessage(response);
+        throw new Error(`خطأ في استجابة OpenAI API: ${errMessage}`);
+      }
+
+      const data = await response.json();
+      const jsonText = data.choices?.[0]?.message?.content;
+
+      if (!jsonText) {
+        throw new Error('لم يرجع OpenAI محتوى نصيًا صالحًا.');
+      }
+
+      trackOpenAIUsage(data.usage);
+      return normalizeGeneratedObject(JSON.parse(jsonText), 'OpenAI');
+    }
+
+    addLog(`تم اختيار ${providerMeta.name}. جاري الاتصال بخوادم Google AI...`, 'info');
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey.trim()}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: promptText
+          }]
+        }],
+        generationConfig: {
+          responseMimeType: 'application/json'
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errMessage = await extractApiErrorMessage(response);
+      throw new Error(`خطأ في استجابة Gemini API: ${errMessage}`);
+    }
+
+    const data = await response.json();
+    const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!jsonText) {
+      throw new Error('لم يرجع Gemini محتوى نصيًا صالحًا.');
+    }
+
+    trackGeminiUsage(data.usageMetadata);
+    return normalizeGeneratedObject(JSON.parse(jsonText), 'Gemini');
   };
 
   const renderPlatformMedia = (platform, className, alt) => {
@@ -426,7 +650,7 @@ function App() {
     setLogs([]);
     addLog('بدء تشغيل خوارزمية تحسين المنشورات المتكاملة...', 'info');
 
-    if (geminiApiKey.trim()) {
+    if (apiKey.trim()) {
       // --- REAL API MODE ---
       try {
         const toneLabels = {
@@ -438,240 +662,17 @@ function App() {
           education: 'تثقيفي يطرح قضايا إنسانية ويعزز قيم التكافل المجتمعي'
         };
 
-        let generatedObj;
+        const humanitarianPrompt = buildHumanitarianGenerationPrompt(textPrompt, toneLabels[tone]);
+        const generatedObj = await generateWithProvider(humanitarianPrompt);
 
-        if (geminiApiKey.trim().startsWith('sk-')) {
-          addLog('تم الكشف عن مفتاح OpenAI API (ChatGPT). الاتصال بخوادم OpenAI AI...', 'info');
-          const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${geminiApiKey.trim()}`
-            },
-            body: JSON.stringify({
-              model: "gpt-4o-mini",
-              messages: [{
-                role: "user",
-                content: `أنت خبير تسويق رقمي محترف ومتخصص في خوارزميات منصات التواصل الاجتماعي وصناعة المحتوى الفيروسي (Viral Content) لجمعية تحالف الخيرية.
-
-مهمتك: تحويل المقال أو الفكرة التالية إلى منشورات احترافية عالية الأداء مُحسّنة لخوارزميات كل منصة لتحقيق أقصى وصول (Reach) وتفاعل (Engagement):
-
-=== المقال/الفكرة الأصلية ===
-"${textPrompt}"
-=== نهاية المقال ===
-
-الأسلوب المطلوب: "${toneLabels[tone]}"
-
-### قواعد ذهبية يجب اتباعها لكل منصة:
-
-🔥 **قواعد عامة لزيادة المشاهدات:**
-- استخدم "كلمات القوة" (Power Words) التي تثير المشاعر مثل: عاجل، صادم، لأول مرة، لن تصدق، الحقيقة، سر، مؤثر جداً، غيّر حياتهم
-- ابدأ كل منشور بـ "Hook" (خطاف انتباه) قوي في أول سطر يجبر القارئ على التوقف
-- أضف CTA (دعوة لاتخاذ إجراء) واضحة مثل: شاركنا رأيك، أعد النشر للأجر، ساهم الآن، مرر لليسار
-- استخدم الإيموجي بذكاء لكسر النص وجذب العين (لا تبالغ)
-- اخلط بين هاشتاقات شائعة (ترند) وهاشتاقات متخصصة (Niche) لتوسيع الوصول
-
-📱 **X (تويتر) - قواعد الخوارزمية:**
-- أول 50 حرف هي الأهم - اجعلها صادمة أو مثيرة للفضول
-- لا تتجاوز 260 حرف
-- ضع 2-3 هاشتاقات فقط (الخوارزمية تعاقب على الكثرة)
-- اطرح سؤال أو رأي مثير للجدل (بأدب) لزيادة الردود
-- أنهِ بدعوة واضحة للريتويت أو التعليق
-
-📌 **Pinterest - قواعد SEO البصري:**
-- العنوان يجب أن يحتوي كلمات بحثية رائجة (Keywords)
-- الوصف يجب أن يكون 300-350 حرف غني بالكلمات المفتاحية
-- استخدم كلمات مثل: أفكار، إلهام، دليل، خطوات، نصائح
-- أضف 3-5 هاشتاقات في نهاية الوصف
-
-💬 **Threads - قواعد التفاعل:**
-- اكتب بأسلوب حواري شخصي كأنك تتكلم مع صديق
-- قسّم النص لفقرات قصيرة (سطرين لكل فقرة)
-- ابدأ بقصة شخصية أو موقف مؤثر
-- اطرح أسئلة مفتوحة تشجع على التعليق
-- استخدم 3-5 هاشتاقات في النهاية
-- النص 400-600 حرف
-
-📝 **Tumblr - قواعد التدوين:**
-- عنوان أدبي جذاب ومؤثر
-- محتوى طويل ومفصل (500-800 حرف) بأسلوب سردي قصصي
-- قسّم المحتوى لفقرات بعناوين فرعية
-- أضف اقتباسات ملهمة
-- أنهِ بخاتمة مؤثرة تدعو للتأمل والمشاركة
-
-عليك إرجاع النتيجة ككائن JSON صالح ومطابق تمامًا للمخطط التالي بدون أي نصوص خارج الـ JSON أو علامات Markdown (مثل \`\`\`json):
-{
-  "enhancedText": "ملخص احترافي ومحسّن للمقال الأصلي بأسلوب تسويقي قوي وجذاب يصلح كنص رئيسي للحملة",
-  "platforms": {
-    "x": {
-      "caption": "تغريدة فيروسية قصيرة تبدأ بخطاف انتباه قوي + CTA + 2-3 هاشتاقات استراتيجية (لا تتجاوز 260 حرف)"
-    },
-    "pinterest": {
-      "title": "عنوان Pin مُحسّن لمحركات البحث البصري بكلمات مفتاحية رائجة",
-      "description": "وصف SEO غني بالكلمات المفتاحية 300-350 حرف مع 3-5 هاشتاقات في النهاية"
-    },
-    "threads": {
-      "caption": "منشور حواري تفاعلي بأسلوب شخصي مقسم لفقرات قصيرة مع أسئلة مفتوحة وCTA قوي + 3-5 هاشتاقات"
-    },
-    "tumblr": {
-      "title": "عنوان أدبي مؤثر للتدوينة",
-      "body": "تدوينة مفصلة سردية 500-800 حرف مقسمة لفقرات مع اقتباسات ملهمة وخاتمة مؤثرة"
-    }
-  },
-  "hashtags": ["8-12 هاشتاق متنوعة تمزج بين الترند والمتخصصة"]
-}`
-              }],
-              response_format: { type: "json_object" }
-            })
-          });
-
-          if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(`خطأ في استجابة OpenAI API: ${errData.error?.message || response.statusText}`);
-          }
-
-          const data = await response.json();
-          const jsonText = data.choices[0].message.content;
-          generatedObj = JSON.parse(jsonText);
-
-          if (data.usage) {
-            const promptTokens = data.usage.prompt_tokens || 0;
-            const completionTokens = data.usage.completion_tokens || 0;
-            const total = data.usage.total_tokens || (promptTokens + completionTokens);
-            // gpt-4o-mini: input is $0.150 / 1M tokens, output is $0.600 / 1M tokens
-            const cost = (promptTokens * 0.15 + completionTokens * 0.60) / 1000000;
-            setLastCost(cost);
-            setTotalCost(prev => prev + cost);
-            setTotalTokens(prev => prev + total);
-            addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
-          }
-
-          addLog('تم تحليل وتحديث النصوص بنجاح لكل المنصات باستخدام ChatGPT!', 'success');
-        } else {
-          addLog('تم الكشف عن مفتاح Gemini API. الاتصال بخوادم Google AI...', 'info');
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey.trim()}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `أنت خبير تسويق رقمي محترف ومتخصص في خوارزميات منصات التواصل الاجتماعي وصناعة المحتوى الإعلاني المروج لجمعية تحالف الخيرية.
-
-مهمتك: تحويل المقال أو الفكرة التالية إلى منشورات ترويجية عالية الأداء ومخصصة لخوارزميات كل منصة لزيادة التفاعل والحث على التبرع:
-
-=== المقال/الفكرة الأصلية ===
-"${textPrompt}"
-=== نهاية المقال ===
-
-الأسلوب المطلوب: "${toneLabels[tone]}"
-
-### القواعد التسويقية وقواعد الترويج الذهبية لكل منصة:
-
-🔥 **قواعد عامة للترويج وزيادة المشاهدات:**
-- ابدأ كل منشور بـ "Hook" (خطاف انتباه) قوي ومثير في أول سطر لشد المتصفح.
-- استخدم "كلمات القوة" (Power Words) المحركة للمشاعر مثل: عاجل، مؤثر جداً، غيّر حياتهم، بـ 10 دنانير، ساهم الآن.
-- أضف دائماً مكان افتراضي للرابط بتنسيق دقيق: \`[رابط التبرع المباشر 🔗]\` في مكان مناسب بالنص لحث المتابعين على الضغط والوصول لصفحة التبرع.
-- وظّف كلمات مفتاحية (Keywords) تسويقية تلائم العمل الخيري والصدقة (مثل: تبرع، صدقة جارية، كفالة أيتام، إغاثة).
-
-📱 **X (تويتر) - قواعد الترويج والانتشار السريع:**
-- أول 50 حرف هي الأهم - اجعلها بمثابة عنوان إعلاني صادم أو مثير للتعاطف.
-- لا تتجاوز 260 حرف شاملاً النص ومكان الرابط الافتراضي.
-- ضع 2-3 هاشتاقات كحد أقصى (تجاوز ذلك يمنع خوارزمية الترويج من نشر التغريدة).
-- أنهِ المنشور بطلب ريتويت أو تفاعل مباشر.
-
-📌 **Pinterest - قواعد الترويج لـ SEO البصري:**
-- العنوان يجب أن يحتوي على كلمات مفتاحية بحثية رائجة ويبدأ بـ (أفكار، طرق، كيف، دليل) لضمان ظهور الصورة في نتائج البحث.
-- الوصف يتراوح بين 300-350 حرف، غني بكلمات الـ SEO التسويقية المروجة ومكتوب ليدفع المستخدمين للنقر على رابط الحملة.
-- أضف 3-5 هاشتاقات في نهاية الوصف.
-
-💬 **Threads - الترويج التفاعلي وجلب الردود:**
-- اكتب بأسلوب حواري وعفوي جداً كأنك تتكلم مع صديق (تجنب تماماً اللهجة الرسمية الإعلانية الجافة).
-- قسّم النص لفقرات قصيرة (سطرين لكل فقرة) مع فواصل أسطر مريحة للعين.
-- أنهِ المنشور بسؤال نقاشي مفتوح حول العطاء وحب الخير لحث القراء على كتابة تعليقاتهم (لأن خوارزمية Threads ترفع انتشار المنشورات بناءً على عدد الردود).
-- النص بين 450-500 حرف مع 3-5 هاشتاقات.
-
-📝 **Tumblr - الترويج القائم على قصة كاملة (Storytelling):**
-- عنوان أدبي إنساني مشوق وجذاب.
-- محتوى سردي قصصي طويل وتفصيلي (1000-1500 حرف) يشرح الحالة بأسلوب عاطفي ومقنع يبني الثقة في مشاريع الجمعية الخيرية.
-- قسّم التدوينة بعناوين فرعية واستخدم اقتباسات ملهمة في المنتصف.
-
-عليك إرجاع النتيجة ككائن JSON صالح ومطابق تمامًا للمخطط التالي بدون أي نصوص خارج الـ JSON أو علامات Markdown (مثل \`\`\`json):
-{
-  "enhancedText": "ملخص احترافي ومحسّن للمقال الأصلي بأسلوب تسويقي قوي وجذاب يصلح كنص رئيسي للحملة",
-  "platforms": {
-    "x": {
-      "caption": "تغريدة ترويجية قصيرة تبدأ بخطاف انتباه قوي + [رابط التبرع المباشر 🔗] + 2-3 هاشتاقات (لا تتجاوز 260 حرف)"
-    },
-    "pinterest": {
-      "title": "عنوان Pin إعلاني يبدأ بـ (كيف/طرق) ومُحسّن للبحث بكلمات مفتاحية رائجة",
-      "description": "وصف SEO ترويجي غني بالكلمات المفتاحية 300-350 حرف يتضمن [رابط التبرع المباشر 🔗] مع 3-5 هاشتاقات في النهاية"
-    },
-    "threads": {
-      "caption": "منشور حواري تفاعلي مقسم لفقرات قصيرة مع سؤال نقاشي مفتوح يتضمن [رابط التبرع المباشر 🔗] + 3-5 هاشتاقات (450-500 حرف)"
-    },
-    "tumblr": {
-      "title": "عنوان أدبي إنساني مؤثر للتدوينة",
-      "body": "تدوينة تفصيلية سردية 1000-1500 حرف مقسمة لعناوين فرعية مع اقتباسات ملهمة تتضمن [رابط التبرع المباشر 🔗]"
-    }
-  },
-  "hashtags": ["8-12 هاشتاق متنوعة تمزج بين الترند والمتخصصة"]
-}`
-                }]
-              }],
-              generationConfig: {
-                responseMimeType: "application/json"
-              }
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`خطأ في استجابة Gemini API: ${response.status}`);
-          }
-
-          const data = await response.json();
-          const jsonText = data.candidates[0].content.parts[0].text;
-          generatedObj = JSON.parse(jsonText);
-
-          if (data.usageMetadata) {
-            const promptTokens = data.usageMetadata.promptTokenCount || 0;
-            const completionTokens = data.usageMetadata.candidatesTokenCount || 0;
-            const total = data.usageMetadata.totalTokenCount || (promptTokens + completionTokens);
-            // gemini-2.5-flash: input is $0.075 / 1M tokens, output is $0.300 / 1M tokens
-            const cost = (promptTokens * 0.075 + completionTokens * 0.30) / 1000000;
-            setLastCost(cost);
-            setTotalCost(prev => prev + cost);
-            setTotalTokens(prev => prev + total);
-            addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
-          }
-
-          addLog('تم تحليل وتحديث النصوص بنجاح لكل المنصات باستخدام Gemini!', 'success');
-        }
-
-        setResults({
-          enhancedText: generatedObj.enhancedText,
-          platforms: {
-            x: { caption: generatedObj.platforms.x.caption },
-            pinterest: {
-              title: generatedObj.platforms.pinterest.title,
-              description: generatedObj.platforms.pinterest.description
-            },
-            threads: { caption: generatedObj.platforms.threads.caption },
-            tumblr: {
-              title: generatedObj.platforms.tumblr.title,
-              body: generatedObj.platforms.tumblr.body
-            }
-          },
-          hashtags: generatedObj.hashtags || []
-        });
-
+        applyGeneratedResults(generatedObj);
+        addLog(`تم تحليل وتحديث النصوص بنجاح لكل المنصات باستخدام ${providerMeta.name}!`, 'success');
         addLog('تم الانتهاء من المعالجة بنجاح! تحقق من المعاينة الحية.', 'success');
-        setIsProcessing(false);
-
       } catch (err) {
-        addLog(`خطأ أثناء الاتصال بالـ API: ${err.message}. جاري التحويل للوضع المحاكي الذكي...`, 'warning');
-        runSmartMockFallback();
+        addLog(`تعذر إكمال الطلب عبر ${providerMeta.name}: ${err.message}`, 'error');
+        addLog('لم يتم التحويل تلقائياً إلى المحاكاة حتى يبقى واضحاً أنك تعمل على مزود حقيقي. يمكنك تصحيح المفتاح أو تغيير المزود من الإعدادات.', 'warning');
+      } finally {
+        setIsProcessing(false);
       }
     } else {
       // --- SMART SIMULATED MODE ---
@@ -869,7 +870,7 @@ function App() {
 
     const generationPrompt = buildHumanitarianGenerationPrompt(textPrompt, toneLabels[tone]);
 
-    if (!geminiApiKey.trim()) {
+    if (!apiKey.trim()) {
       addLog('لم يتم إدخال مفتاح API. تفعيل المحاكاة المحلية الخاصة بسياق غزة...', 'info');
       setTimeout(() => {
         runGazaSmartMockFallback();
@@ -878,108 +879,16 @@ function App() {
     }
 
     try {
-      let generatedObj;
+      const generatedObj = await generateWithProvider(generationPrompt);
 
-      if (geminiApiKey.trim().startsWith('sk-')) {
-        addLog('تم الكشف عن مفتاح OpenAI API (ChatGPT). الاتصال بخوادم OpenAI...', 'info');
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${geminiApiKey.trim()}`
-          },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages: [{
-              role: "user",
-              content: generationPrompt
-            }],
-            response_format: { type: "json_object" }
-          })
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(`خطأ في استجابة OpenAI API: ${errData.error?.message || response.statusText}`);
-        }
-
-        const data = await response.json();
-        generatedObj = JSON.parse(data.choices[0].message.content);
-
-        if (data.usage) {
-          const promptTokens = data.usage.prompt_tokens || 0;
-          const completionTokens = data.usage.completion_tokens || 0;
-          const total = data.usage.total_tokens || (promptTokens + completionTokens);
-          const cost = (promptTokens * 0.15 + completionTokens * 0.60) / 1000000;
-          setLastCost(cost);
-          setTotalCost(prev => prev + cost);
-          setTotalTokens(prev => prev + total);
-          addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
-        }
-
-        addLog('تم توليد نصوص مناسبة لسياق غزة باستخدام ChatGPT.', 'success');
-      } else {
-        addLog('تم الكشف عن مفتاح Gemini API. الاتصال بخوادم Google AI...', 'info');
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey.trim()}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: generationPrompt
-              }]
-            }],
-            generationConfig: {
-              responseMimeType: "application/json"
-            }
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`خطأ في استجابة Gemini API: ${response.status}`);
-        }
-
-        const data = await response.json();
-        generatedObj = JSON.parse(data.candidates[0].content.parts[0].text);
-
-        if (data.usageMetadata) {
-          const promptTokens = data.usageMetadata.promptTokenCount || 0;
-          const completionTokens = data.usageMetadata.candidatesTokenCount || 0;
-          const total = data.usageMetadata.totalTokenCount || (promptTokens + completionTokens);
-          const cost = (promptTokens * 0.075 + completionTokens * 0.30) / 1000000;
-          setLastCost(cost);
-          setTotalCost(prev => prev + cost);
-          setTotalTokens(prev => prev + total);
-          addLog(`استهلاك الرموز: ${total} رمز (التكلفة: $${cost.toFixed(5)})`, 'info');
-        }
-
-        addLog('تم توليد نصوص مناسبة لسياق غزة باستخدام Gemini.', 'success');
-      }
-
-      setResults({
-        enhancedText: generatedObj.enhancedText,
-        platforms: {
-          x: { caption: generatedObj.platforms.x.caption },
-          pinterest: {
-            title: generatedObj.platforms.pinterest.title,
-            description: generatedObj.platforms.pinterest.description
-          },
-          threads: { caption: generatedObj.platforms.threads.caption },
-          tumblr: {
-            title: generatedObj.platforms.tumblr.title,
-            body: generatedObj.platforms.tumblr.body
-          }
-        },
-        hashtags: generatedObj.hashtags || []
-      });
-
+      applyGeneratedResults(generatedObj);
+      addLog(`تم توليد نصوص مناسبة لسياق غزة باستخدام ${providerMeta.name}.`, 'success');
       addLog('تم الانتهاء من المعالجة الخاصة بغزة بنجاح. تحقق من المعاينة الحية.', 'success');
-      setIsProcessing(false);
     } catch (err) {
-      addLog(`خطأ أثناء الاتصال بالـ API: ${err.message}. جاري التحويل إلى المحاكاة المحلية الخاصة بغزة...`, 'warning');
-      runGazaSmartMockFallback();
+      addLog(`تعذر إكمال الطلب عبر ${providerMeta.name}: ${err.message}`, 'error');
+      addLog('لم يتم التحويل تلقائياً إلى المحاكاة المحلية حتى يبقى سبب الفشل واضحاً. صحح المفتاح أو غيّر المزود من الإعدادات ثم أعد المحاولة.', 'warning');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -1085,7 +994,7 @@ function App() {
           </div>
 
           <div className="header-actions">
-            {geminiApiKey && (
+            {apiKey && (
               <div
                 className="cost-tracker-badge"
                 onClick={handleResetCost}
@@ -1101,11 +1010,11 @@ function App() {
               </div>
             )}
 
-            <div className={`api-status-badge ${geminiApiKey ? '' : 'disconnected'}`}>
-              {geminiApiKey ? (
+            <div className={`api-status-badge ${apiKey ? '' : 'disconnected'}`}>
+              {apiKey ? (
                 <>
                   <CheckCircle2 size={16} />
-                  <span>متصل بـ {geminiApiKey.startsWith('sk-') ? 'OpenAI (ChatGPT) API' : 'Gemini API'}</span>
+                  <span>مُعدّ لاستخدام {providerMeta.statusLabel}</span>
                 </>
               ) : (
                 <>
@@ -1713,23 +1622,37 @@ function App() {
             </div>
 
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '15px' }}>
-              افتراضياً، تعمل المنصة في <strong>وضع المحاكاة الذكية المدمج</strong> لتوليد المنشورات. لتفعيل النشر الحقيقي باستخدام الذكاء الاصطناعي الفعلي من Google، الرجاء إدخال مفتاح الـ API الخاص بك:
+              افتراضياً، تعمل المنصة في <strong>وضع المحاكاة الذكية المدمج</strong>. لتفعيل التوليد الحقيقي، اختر المزود ثم أدخل مفتاح الـ API الخاص بك:
             </p>
 
             <div className="form-group">
+              <label className="form-label">
+                <span>مزود الذكاء الاصطناعي:</span>
+              </label>
+              <select
+                className="form-input"
+                value={apiProvider}
+                onChange={(e) => setApiProvider(e.target.value)}
+              >
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
+            </div>
+
+            <div className="form-group">
               <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>Gemini API Key:</span>
-                <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#a855f7', marginRight: 'auto', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span>احصل على مفتاح مجاني</span>
+                <span>{providerMeta.inputLabel}</span>
+                <a href={providerMeta.helpHref} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: '#a855f7', marginRight: 'auto', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <span>{providerMeta.helpText}</span>
                   <ExternalLink size={10} />
                 </a>
               </label>
               <input
                 type="password"
                 className="form-input"
-                placeholder="AIzaSy..."
-                value={geminiApiKey}
-                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder={providerMeta.placeholder}
+                value={apiKey}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
                 style={{ direction: 'ltr', textAlign: 'left' }}
               />
             </div>
@@ -1737,7 +1660,7 @@ function App() {
             <div className="settings-card">
               <h4 style={{ margin: '0 0 6px 0', fontSize: '0.9rem', color: 'white' }}>معلومات الخصوصية:</h4>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>
-                يتم حفظ مفتاح API الخاص بك محلياً في متصفحك فقط (LocalStorage)، ويتم توجيه جميع طلبات توليد المحتوى مباشرة من متصفحك إلى خوادم Google Gemini بشكل آمن تماماً وبدون أي وسيط.
+                يتم حفظ مفتاح API الخاص بك محلياً في متصفحك فقط (LocalStorage)، ويتم توجيه جميع طلبات توليد المحتوى مباشرة من متصفحك إلى خوادم المزود الذي اخترته بدون أي وسيط.
               </p>
             </div>
 
@@ -1746,7 +1669,7 @@ function App() {
               style={{ width: '100%', marginTop: '10px' }}
               onClick={() => {
                 setShowSettings(false);
-                addLog('تم تحديث إعدادات Gemini API بنجاح.', 'success');
+                addLog(`تم تحديث إعدادات ${providerMeta.name} API بنجاح.`, 'success');
               }}
             >
               حفظ الإعدادات وإغلاق
